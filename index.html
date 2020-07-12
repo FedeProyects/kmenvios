@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 80%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      .controls {
+        margin-top: 10px;
+        border: 1px solid transparent;
+        border-radius: 2px 0 0 2px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        height: 32px;
+        outline: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      #origin-input,
+      #destination-input {
+        background-color: #fff;
+        font-family: Roboto;
+        font-size: 15px;
+        font-weight: 300;
+        margin-left: 5px;
+        padding: 0 11px 0 8px;
+        text-overflow: ellipsis;
+        width: 170px;
+      }
+
+      #origin-input:focus,
+      #destination-input:focus {
+        border-color: #4d90fe;
+      }
+	
+      #mode-selector {
+        color: #fff;
+        background-color: #4d90fe;
+        margin-left: 12px;
+        padding: 5px 11px 0px 11px;
+      }
+
+      #mode-selector label {
+        font-family: Roboto;
+        font-size: 13px;
+        font-weight: 300;
+      }
+	.datos{
+		font-family: "Times New Roman";
+		font-size: 14px;
+	}
+	div.left {
+		float: left;
+		width: 50%;
+		text-align:center;
+		margin-top:40px;
+	}	
+	div.right {
+		float: right;
+		width: 50%;
+	}	
+    </style>
+  </head>
+  <body>
+    <div>
+        <input id="origin-input" class="controls" type="text"
+            placeholder="Enter an origin location">
+
+        <input id="destination-input" class="controls" type="text"
+            placeholder="Enter a destination location">
+            
+    </div>
+
+    <div id="map"></div>
+	
+	<div class="datos">
+		<div class="left">
+			<button type="button" onclick="limpiar()">Limpiar direcciones</button>
+			<br><input type="checkbox" id="inmediato" onClick="sumarInmediato()"> Inmediato/exclusivo
+			<br><input type="checkbox" id="fueraHorario" onclick="sumarFueraHorario()"> Fuera de horario
+			<h5>El precio es: $<span id="precio"></span></h5>
+		</div>
+		<div class="right">
+			<div id="listaDistancia">
+			
+			</div>
+			<button type="button" onclick="calcular()">Calcular Precio</button>
+		</div>	
+	</div>
+    <script>
+// This example requires the Places library. Include the libraries=places
+// parameter when you first load the API. For example:
+// <script
+// src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+
+function initMap() {
+  var map = new google.maps.Map(document.getElementById('map'), {
+    mapTypeControl: false,
+    center: {lat: -34.6131500, lng: -58.3772300},
+    zoom: 13
+  });
+  new AutocompleteDirectionsHandler(map);
+
+}
+var arrayColores = ['red', 'green', 'blue' ,'yellow'];
+var arrayRutasDistancia = [];
+var precioFinal = 0;
+document.getElementById('precio').innerHTML = precioFinal;
+/**
+ * @constructor
+ */
+function AutocompleteDirectionsHandler(map) {
+  this.map = map;
+  this.originPlaceId = null;
+  this.destinationPlaceId = null;
+  this.travelMode = 'DRIVING';
+  this.directionsService = new google.maps.DirectionsService;
+  this.directionsRenderer = new google.maps.DirectionsRenderer;
+  this.directionsRenderer.setMap(map);
+
+  var originInput = document.getElementById('origin-input');
+  var destinationInput = document.getElementById('destination-input');
+
+  var originAutocomplete = new google.maps.places.Autocomplete(originInput);
+  originAutocomplete.setFields(['place_id']);
+
+  var destinationAutocomplete = new google.maps.places.Autocomplete(destinationInput);
+  destinationAutocomplete.setFields(['place_id']);
+
+  this.setupPlaceChangedListener(originAutocomplete, 'ORIG');
+  this.setupPlaceChangedListener(destinationAutocomplete, 'DEST');
+
+  this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(originInput);
+  this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(destinationInput);
+  this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(this.travelMode);
+}
+
+AutocompleteDirectionsHandler.prototype.setupPlaceChangedListener = function(autocomplete, mode) {
+  var me = this;
+  autocomplete.bindTo('bounds', this.map);
+
+  autocomplete.addListener('place_changed', function() {
+    var place = autocomplete.getPlace();
+
+    if (!place.place_id) {
+      window.alert('Please select an option from the dropdown list.');
+      return;
+    }
+    if (mode === 'ORIG') {
+      me.originPlaceId = place.place_id;
+    } else {
+      me.destinationPlaceId = place.place_id;
+    }
+    me.route();
+  });
+};
+
+AutocompleteDirectionsHandler.prototype.route = function() {
+  if (!this.originPlaceId || !this.destinationPlaceId) {
+    return;
+  }
+  var me = this;
+  
+  this.directionsService.route(
+      {
+        origin: {'placeId': this.originPlaceId},
+        destination: {'placeId': this.destinationPlaceId},
+        provideRouteAlternatives: true,
+        travelMode: google.maps.DirectionsTravelMode.DRIVING,
+      },
+      function(response, status) {
+      	if (status === 'OK') {
+	     	var str = '';
+	    	var arrayRutas = response.routes;
+	        for (var i = 0, len = arrayRutas.length; i < len; i++) {
+	        	arrayRutasDistancia.push(response.routes[i].legs[0].distance.text);
+	       		new google.maps.DirectionsRenderer({
+		        	map: me.map,
+		            directions: response,
+		            routeIndex: i,
+		            polylineOptions: {
+		            	'strokeColor': arrayColores[i],
+		            }
+	            });
+	       		str += '<br><input type="checkbox" id="'+arrayColores[i]+'"><label style="color:'+arrayColores[i]+'">Distancia recorrida: <span>'+arrayRutas[i].legs[0].distance.text +'</span> |  Tiempo de viaje: <span>'+arrayRutas[i].legs[0].duration.text +'</span></label>';
+	      			document.getElementById('listaDistancia').innerHTML = str;
+       		}
+        } else {
+          window.alert('Directions request failed due to ' + status);
+        }
+      });
+};
+function calcular(){
+	if(document.getElementById('red').checked == true){
+		calcularPrecio(arrayRutasDistancia[0]);
+	}
+	if(document.getElementById('green').checked == true){
+		calcularPrecio(arrayRutasDistancia[1]);
+	}
+	if(document.getElementById('blue').checked == true){
+		calcularPrecio(arrayRutasDistancia[2]);
+	}
+	if(document.getElementById('yellow').checked == true){
+		calcularPrecio(arrayRutasDistancia[3]);
+	}
+}
+function calcularPrecio(distancia){
+	var arrayDeDistancia = distancia.split(" ")
+	var distanciaDecimal = arrayDeDistancia[0].replace(',','.');
+	var distanciaFinal  = parseFloat(distanciaDecimal);
+	if(distanciaFinal <= 6.00){
+	    precioFinal = 200;
+	}else{
+	    if((distanciaFinal > 6.00) && (distanciaFinal < 25.00)){
+	    	precioFinal = distanciaFinal * 35;
+	    }else{
+			precioFinal =  distanciaFinal * 30;
+	    }
+	}
+	document.getElementById('precio').innerHTML = precioFinal;
+}
+function sumarFueraHorario(){
+	var precio = document.getElementById('precio');
+	if(document.getElementById('fueraHorario').checked == true){
+		document.getElementById('precio').innerHTML = (precioFinal * 1.5);
+		}else{
+			document.getElementById('precio').innerHTML = precioFinal;
+		}
+}
+function sumarInmediato(){
+	var precio = document.getElementById('precio');
+	if(document.getElementById('inmediato').checked == true){
+		document.getElementById('precio').innerHTML = (precioFinal * 1.25);
+		}else{
+			document.getElementById('precio').innerHTML = precioFinal;
+		}
+}
+
+function limpiar(){
+	location.reload();
+	var me = this.google.maps.DirectionsRenderer;
+	arrayRutasDistancia = [];
+	document.getElementById('origin-input').value = '';
+	document.getElementById('destination-input').value = ''; 
+	document.getElementById('precio').innerHTML = 0;
+	document.getElementById("inmediato").checked = false;
+	document.getElementById("fueraHorario").checked = false;
+	document.getElementById("red").checked = false;
+	document.getElementById("blue").checked = false;
+	document.getElementById("green").checked = false;
+	document.getElementById("yellow").checked = false;
+}
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDu8NSlM4869sJR90t7DvfpSHkiw4CVJA8&libraries=places&callback=initMap"></script>
+  </body>
+</html>
