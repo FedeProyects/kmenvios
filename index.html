@@ -7,7 +7,7 @@
       /* Always set the map height explicitly to define the size of the div
        * element that contains the map. */
       #map {
-        height: 80%;
+        height: 75%;
       }
       /* Optional: Makes the sample page fill the window. */
       html, body {
@@ -30,10 +30,10 @@
       #destination-input {
         background-color: #fff;
         font-family: Roboto;
-        font-size: 15px;
+        font-size: 17px;
         font-weight: 300;
         margin-left: 5px;
-        padding: 0 11px 0 8px;
+        padding: 0 5px 0 5px;
         text-overflow: ellipsis;
         width: 170px;
       }
@@ -57,7 +57,7 @@
       }
 	.datos{
 		font-family: "Times New Roman";
-		font-size: 14px;
+		font-size: 17px;
 	}
 	div.left {
 		float: left;
@@ -85,10 +85,10 @@
 	
 	<div class="datos">
 		<div class="left">
-			<button type="button" onclick="limpiar()">Limpiar direcciones</button>
+			<button type="button" onclick="limpiar()" style="margin-bottom:5px">Limpiar direcciones</button>
 			<br><input type="checkbox" id="inmediato" onClick="sumarInmediato()"> Inmediato/exclusivo
 			<br><input type="checkbox" id="fueraHorario" onclick="sumarFueraHorario()"> Fuera de horario
-			<h5>El precio es: $<span id="precio"></span></h5>
+			<h3>El precio es: $<span id="precio"></span></h3>
 		</div>
 		<div class="right">
 			<div id="listaDistancia">
@@ -192,7 +192,7 @@ AutocompleteDirectionsHandler.prototype.route = function() {
 		            	'strokeColor': arrayColores[i],
 		            }
 	            });
-	       		str += '<br><input type="checkbox" id="'+arrayColores[i]+'"><label style="color:'+arrayColores[i]+'">Distancia recorrida: <span>'+arrayRutas[i].legs[0].distance.text +'</span> |  Tiempo de viaje: <span>'+arrayRutas[i].legs[0].duration.text +'</span></label>';
+	       		str += '<br><input type="checkbox" id="'+arrayColores[i]+'"><label style="color:'+arrayColores[i]+'">Distancia: <span>'+arrayRutas[i].legs[0].distance.text +'</span> | Tiempo: <span>'+arrayRutas[i].legs[0].duration.text +'</span></label>';
 	      			document.getElementById('listaDistancia').innerHTML = str;
        		}
         } else {
