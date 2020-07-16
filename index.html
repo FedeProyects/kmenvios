@@ -88,6 +88,7 @@
 			<button type="button" onclick="limpiar()" style="margin-bottom:5px">Limpiar direcciones</button>
 			<br><input type="checkbox" id="inmediato" onClick="sumarInmediato()"> Inmediato/exclusivo
 			<br><input type="checkbox" id="fueraHorario" onclick="sumarFueraHorario()"> Fuera de horario
+			<br><input type="checkbox" id="auto" onclick="auto()"> Auto
 			<h3>El precio es: $<span id="precio"></span></h3>
 		</div>
 		<div class="right">
@@ -115,6 +116,7 @@ function initMap() {
 var arrayColores = ['red', 'green', 'blue' ,'yellow'];
 var arrayRutasDistancia = [];
 var precioFinal = 0;
+var esAuto = false;
 document.getElementById('precio').innerHTML = precioFinal;
 /**
  * @constructor
@@ -218,14 +220,24 @@ function calcularPrecio(distancia){
 	var arrayDeDistancia = distancia.split(" ")
 	var distanciaDecimal = arrayDeDistancia[0].replace(',','.');
 	var distanciaFinal  = parseFloat(distanciaDecimal);
-	if(distanciaFinal <= 6.00){
-	    precioFinal = 200;
+	if(!esAuto){
+		if(distanciaFinal <= 6.00){
+		    precioFinal = 200;
+		}else{
+		    if((distanciaFinal > 6.00) && (distanciaFinal < 25.00)){
+		    	precioFinal = distanciaFinal * 35;
+		    }else{
+				precioFinal =  distanciaFinal * 30;
+		    }
+		}
 	}else{
-	    if((distanciaFinal > 6.00) && (distanciaFinal < 25.00)){
-	    	precioFinal = distanciaFinal * 35;
-	    }else{
-			precioFinal =  distanciaFinal * 30;
-	    }
+		if(distanciaFinal <= 6.00){
+		    precioFinal = 250;
+		}else{
+			if(distanciaFinal > 6.00){
+		    	precioFinal = distanciaFinal * 40;
+		    }
+		}
 	}
 	document.getElementById('precio').innerHTML = precioFinal;
 }
@@ -245,20 +257,30 @@ function sumarInmediato(){
 			document.getElementById('precio').innerHTML = precioFinal;
 		}
 }
+function auto(){
+	var precio = document.getElementById('precio');
+	if(document.getElementById('auto').checked == true){
+		esAuto = true;
+		calcular();
+	}else{
+		esAuto = false;
+		calcular();
+	}
+}
 
 function limpiar(){
 	location.reload();
-	var me = this.google.maps.DirectionsRenderer;
-	arrayRutasDistancia = [];
-	document.getElementById('origin-input').value = '';
-	document.getElementById('destination-input').value = ''; 
-	document.getElementById('precio').innerHTML = 0;
-	document.getElementById("inmediato").checked = false;
-	document.getElementById("fueraHorario").checked = false;
-	document.getElementById("red").checked = false;
-	document.getElementById("blue").checked = false;
-	document.getElementById("green").checked = false;
-	document.getElementById("yellow").checked = false;
+// 	var me = this.google.maps.DirectionsRenderer;
+// 	arrayRutasDistancia = [];
+// 	document.getElementById('origin-input').value = '';
+// 	document.getElementById('destination-input').value = ''; 
+// 	document.getElementById('precio').innerHTML = 0;
+// 	document.getElementById("inmediato").checked = false;
+// 	document.getElementById("fueraHorario").checked = false;
+// 	document.getElementById("red").checked = false;
+// 	document.getElementById("blue").checked = false;
+// 	document.getElementById("green").checked = false;
+// 	document.getElementById("yellow").checked = false;
 }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDu8NSlM4869sJR90t7DvfpSHkiw4CVJA8&libraries=places&callback=initMap"></script>
