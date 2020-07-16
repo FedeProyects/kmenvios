@@ -52,7 +52,7 @@
 
       #mode-selector label {
         font-family: Roboto;
-        font-size: 13px;
+        font-size: 10px;
         font-weight: 300;
       }
 	.datos{
@@ -65,37 +65,45 @@
 		text-align:center;
 		margin-top:40px;
 	}	
-	div.right {
+	.datos .derecha{
 		float: right;
 		width: 50%;
-	}	
+	}
+	.precio{
+		text-align: center;
+    	margin: 8px 0 8px 0;
+    	font-size: 24px;
+    	positoin:absolute;
+	}
+	.botones{
+		margin-top:6px;
+	}
     </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   </head>
   <body>
     <div>
         <input id="origin-input" class="controls" type="text"
             placeholder="Enter an origin location">
-
         <input id="destination-input" class="controls" type="text"
             placeholder="Enter a destination location">
-            
     </div>
 
     <div id="map"></div>
-	
+	<div class="precio">
+		<span>El precio es: $<span id="precio"></span>
+	</div>
 	<div class="datos">
-		<div class="left">
-			<button type="button" onclick="limpiar()" style="margin-bottom:5px">Limpiar direcciones</button>
-			<br><input type="checkbox" id="inmediato" onClick="sumarInmediato()"> Inmediato/exclusivo
-			<br><input type="checkbox" id="fueraHorario" onclick="sumarFueraHorario()"> Fuera de horario
-			<br><input type="checkbox" id="auto" onclick="auto()"> Auto
-			<h3>El precio es: $<span id="precio"></span></h3>
+		<div class="izquierda">
+			<input type="checkbox" id="inmediato" onClick="sumarInmediato()"> Inmediato/exclusivo <br>
+			<input type="checkbox" id="fueraHorario" onclick="sumarFueraHorario()"> Fuera de horario <br>
+			<input type="checkbox" id="auto" onclick="auto()"> Auto <br>
+			<button type="button"  class="btn btn-secondary" onclick="limpiar()">Limpiar direcciones</button>
+			<button type="button" class="btn btn-primary botones" onclick="calcular()">Calcular Precio</button>
 		</div>
-		<div class="right">
+		<div class="derecha">
 			<div id="listaDistancia">
-			
 			</div>
-			<button type="button" onclick="calcular()">Calcular Precio</button>
 		</div>	
 	</div>
     <script>
@@ -194,7 +202,7 @@ AutocompleteDirectionsHandler.prototype.route = function() {
 		            	'strokeColor': arrayColores[i],
 		            }
 	            });
-	       		str += '<br><input type="checkbox" id="'+arrayColores[i]+'"><label style="color:'+arrayColores[i]+'">Distancia: <span>'+arrayRutas[i].legs[0].distance.text +'</span> | Tiempo: <span>'+arrayRutas[i].legs[0].duration.text +'</span></label>';
+	       		str += '<label style="color:'+arrayColores[i]+'"><input type="checkbox" id="'+arrayColores[i]+'"> Distancia: '+arrayRutas[i].legs[0].distance.text +' | Tiempo: '+arrayRutas[i].legs[0].duration.text +'</label>';
 	      			document.getElementById('listaDistancia').innerHTML = str;
        		}
         } else {
