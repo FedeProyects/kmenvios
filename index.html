@@ -73,7 +73,7 @@
 		text-align: center;
     	margin: 8px 0 8px 0;
     	font-size: 24px;
-    	positoin:absolute;
+    	/* position:absolute; */
 	}
 	.botones{
 		margin-top:6px;
@@ -230,20 +230,20 @@ function calcularPrecio(distancia){
 	var distanciaFinal  = parseFloat(distanciaDecimal);
 	if(!esAuto){
 		if(distanciaFinal <= 6.00){
-		    precioFinal = 200;
+		    precioFinal = 250;
 		}else{
 		    if((distanciaFinal > 6.00) && (distanciaFinal < 25.00)){
-		    	precioFinal = distanciaFinal * 35;
+		    	precioFinal = distanciaFinal * 40;
 		    }else{
-				precioFinal =  distanciaFinal * 30;
+				precioFinal =  distanciaFinal * 35;
 		    }
 		}
 	}else{
 		if(distanciaFinal <= 6.00){
-		    precioFinal = 250;
+		    precioFinal = 350;
 		}else{
 			if(distanciaFinal > 6.00){
-		    	precioFinal = distanciaFinal * 40;
+		    	precioFinal = distanciaFinal * 45;
 		    }
 		}
 	}
